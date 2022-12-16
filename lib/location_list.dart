@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import './components/banner_image.dart';
 import './components/location_tile.dart';
+import './components/default_app_bar.dart';
 import './models/location.dart';
 import './location_detail.dart';
 import './styles.dart';
@@ -37,7 +39,8 @@ class _LocationListState extends State<LocationList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Locations', style: Styles.navBarTitle)),
+        // appBar: AppBar(title: Text('Locations', style: Styles.navBarTitle)),
+        appBar: DefaultAppBar(),
         body: RefreshIndicator(
             onRefresh: loadData, //   <= This is of type Future<void>
             child: Column(children: [
@@ -90,8 +93,8 @@ class _LocationListState extends State<LocationList> {
         child: Container(
           height: ListItemHeight,
           child: Stack(children: [
-            _tileImage(location.url, MediaQuery.of(context).size.width,
-                ListItemHeight),
+            // _tileImage(location.url, MediaQuery.of(context).size.width,ListItemHeight),
+            BannerImage(url: location.url, height: ListItemHeight),
             _titleFooter(location),
           ]),
         ));
@@ -118,19 +121,20 @@ class _LocationListState extends State<LocationList> {
         ));
   }
 
-  Widget _tileImage(String url, double width, double height) {
-    late Image image; // late keyword not needed when using locally
-    try {
-      image = Image.network(url, fit: BoxFit.cover);
-    } catch (e) {
-      print('could not load image $url');
-    }
+  // moving this code to custom component
+  // Widget _tileImage(String url, double width, double height) {
+  //   late Image image; // late keyword not needed when using locally
+  //   try {
+  //     image = Image.network(url, fit: BoxFit.cover);
+  //   } catch (e) {
+  //     print('could not load image $url');
+  //   }
 
-    return Container(
-      constraints: BoxConstraints.expand(),
-      child: image,
-    );
-  }
+  //   return Container(
+  //     constraints: BoxConstraints.expand(),
+  //     child: image,
+  //   );
+  // }
 
   Widget _titleFooter(Location location) {
     final info = LocationTile(location: location, darkTheme: true);
@@ -167,9 +171,9 @@ class _LocationListState extends State<LocationList> {
   //   );
   // }
 
-  Widget _itemTitle(Location location) {
-    // return Text(location.name, style: Styles.textDefault);
-    // or
-    return Text('${location.name}', style: Styles.textDefault);
-  }
+  // Widget _itemTitle(Location location) {
+  //   // return Text(location.name, style: Styles.textDefault);
+  //   // or
+  //   return Text('${location.name}', style: Styles.textDefault);
+  // }
 }

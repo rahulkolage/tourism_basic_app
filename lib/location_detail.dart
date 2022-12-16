@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 //import 'package:tourism_basic_app/mocks/mock_location.dart';
+import 'package:url_launcher/url_launcher.dart';
+import './components/banner_image.dart';
+import './components/location_tile.dart';
+import './components/default_app_bar.dart';
 import './models/location.dart';
 import './styles.dart';
+
+const BannerImageHeight = 300.0;
+const BodyVerticalPadding = 20.0;
+const FooterHeight = 100.0;
 
 class LocationDetail extends StatefulWidget {
   final int locationID;
@@ -41,24 +49,24 @@ class _LocationDetailState extends State<LocationDetail> {
     // var location = MockLocation.fetch(locationID);
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            (location.name).toString(),
-            style: Styles.navBarTitle,
-          ),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _renderBody(context, location)
-              // [
-              //   _section('Hello One', Colors.green),
-              //   _section('Hello Two', Colors.redAccent),
-              //   _section('Hello Three!', Colors.blue),
-              // ],
-              ),
-        ));
+        // appBar: AppBar(title: Text((location.name).toString(),style: Styles.navBarTitle)),
+        appBar: DefaultAppBar(),
+        body: Stack(
+          children: [
+            _renderBody(context, location),
+            _renderFooter(context, location)
+          ],
+        )
+        // SingleChildScrollView(
+        //     child: Column(
+        //   mainAxisAlignment: MainAxisAlignment.start,
+        //   crossAxisAlignment: CrossAxisAlignment.stretch,
+        //   children: Stack(children: [
+        //     _renderBody(context, location),
+        //     _renderFooter(context, location)
+        //   ])
+        // ))
+        );
   }
 
   // Widget _section(String title, Color color) {
@@ -70,8 +78,8 @@ class _LocationDetailState extends State<LocationDetail> {
 
   loadData() async {
     final location = await Location.fetchByID(locationID);
-    
-    // we have to adde mounted check as 
+
+    // we have to adde mounted check as
     // initState gets called before UI is ready that means
     // widget is might not mounted yet. It is phase when
     // widget first loads it not mounted into hierarchy of all widgets on screen
@@ -83,15 +91,38 @@ class _LocationDetailState extends State<LocationDetail> {
     }
   }
 
-  List<Widget> _renderBody(BuildContext context, Location location) {
+  // List<Widget> _renderBody(BuildContext context, Location location) {
+  Widget _renderBody(BuildContext context, Location location) {    
     var result = <Widget>[];
 
     // show image
-    result.add(_bannerImage(location.url, 170.0));
+    // result.add(_bannerImage(location.url, BannerImageHeight)); //170.0
+
+    result.add(BannerImage(url: location.url, height: BannerImageHeight)); //170.0
+
+    result.add(_renderHeader());
 
     // redner text content
     result.addAll(_renderFacts(context, location));
-    return result;
+
+    result.add(_renderBottomSpacer());
+
+    // result;
+    // wrap result into SingleChildScrollView and _renderBody is no longer list of widget
+    return SingleChildScrollView(
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: result));        
+  }
+
+  Widget _renderHeader() {
+    return Container(
+      padding: EdgeInsets.symmetric(
+          vertical: BodyVerticalPadding,
+          horizontal: Styles.horizontalPaddingDefault),
+      child: LocationTile(location: location, darkTheme: false),
+    );
   }
 
   List<Widget> _renderFacts(BuildContext context, Location location) {
@@ -107,17 +138,19 @@ class _LocationDetailState extends State<LocationDetail> {
 
   Widget _sectionTitle(String text) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(25.0, 25.0, 25.0, 10.0),
-      child: Text(text,
-          textAlign: TextAlign.left,
-          // style: TextStyle(fontSize: 24.0, color: Colors.black)),
-          style: Styles.headerLarge),
+      // padding: const EdgeInsets.fromLTRB(25.0, 25.0, 25.0, 10.0),
+      padding: EdgeInsets.fromLTRB(Styles.horizontalPaddingDefault, 25.0,
+          Styles.horizontalPaddingDefault, 0.0),
+      child: Text(text.toUpperCase(),
+          textAlign: TextAlign.left, style: Styles.headerLarge),
     );
   }
 
   Widget _sectionText(String text) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+      // padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+      padding: EdgeInsets.symmetric(
+          vertical: 10.0, horizontal: Styles.horizontalPaddingDefault),
       child: Text(
         text,
         style: Styles.textDefault,
@@ -125,35 +158,79 @@ class _LocationDetailState extends State<LocationDetail> {
     );
   }
 
-  // Adding Image
-  Widget _bannerImage(String url, double height) {
-    if (url.isEmpty) {
-      return Container();
-    }
-
-    try {
-      return Container(
-        constraints: BoxConstraints.tightFor(height: height),
-        child: Image.network(url, fit: BoxFit.fitWidth),
-      );
-    } catch (e) {
-      print("could not load image $url");
-      return Container();
-    }
-
-    // late Image image; // late keyword not needed when using locally
-
-    // try {
-    //   if (url.isNotEmpty) {
-    //     image = Image.network(url, fit: BoxFit.fitWidth);
-    //   }
-    // } catch (e) {
-    //   print('could not load image $url');
-    // }
-
-    // return Container(
-    //   constraints: BoxConstraints.tightFor(height: height),
-    //   child: image,
-    // );
+  Widget _renderFooter(BuildContext context, Location location) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          decoration: BoxDecoration(color: Colors.white.withOpacity(0.5)),
+          height: FooterHeight,
+          child: Container(
+              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
+              child: _renderBookButton()),
+        )
+      ],
+    );
   }
+
+  Widget _renderBookButton() {
+    return TextButton(
+      style: TextButton.styleFrom(
+        backgroundColor: Styles.accentColor,
+        foregroundColor: Styles.textColorBright,
+      ),
+      onPressed: _handleBookPress,
+      child: Text(
+        'Book'.toUpperCase(), style: Styles.textCTAButton,
+      ),
+    );
+  }
+
+  // this may crash app as on some devices mailto may not work
+  void _handleBookPress() async {
+    const url = 'mailto:hello@tourism.co?subject=inquary';
+
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      throw 'Could not lauch $url';
+    }
+  }
+
+  Widget _renderBottomSpacer() {
+    return Container(height: FooterHeight);
+  }
+
+  // Adding Image
+  // Widget _bannerImage(String url, double height) {
+  //   if (url.isEmpty) {
+  //     return Container();
+  //   }
+
+  //   try {
+  //     return Container(
+  //       constraints: BoxConstraints.tightFor(height: height),
+  //       child: Image.network(url, fit: BoxFit.fitWidth),
+  //     );
+  //   } catch (e) {
+  //     print("could not load image $url");
+  //     return Container();
+  //   }
+
+  //   // late Image image; // late keyword not needed when using locally
+
+  //   // try {
+  //   //   if (url.isNotEmpty) {
+  //   //     image = Image.network(url, fit: BoxFit.fitWidth);
+  //   //   }
+  //   // } catch (e) {
+  //   //   print('could not load image $url');
+  //   // }
+
+  //   // return Container(
+  //   //   constraints: BoxConstraints.tightFor(height: height),
+  //   //   child: image,
+  //   // );
+  // }
 }
