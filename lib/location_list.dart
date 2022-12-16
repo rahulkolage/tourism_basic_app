@@ -65,15 +65,6 @@ class _LocationListState extends State<LocationList> {
     return ListView.builder(
       itemCount: locations.length,
       itemBuilder: _listviewItemBuilder, // passing callback function
-
-      // (context, index) {
-      //   return ListTile(
-      //     leading: _itemThumbnail(locations[index]),
-      //     title: _itemTitle(locations[index]),
-      //     contentPadding: EdgeInsets.all(10.0),
-      //     onTap: () => _navigateToLocationDetail(context, locations[index]),
-      //   );
-      // },
     );
   }
 
