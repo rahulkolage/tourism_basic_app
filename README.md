@@ -42,5 +42,5 @@ samples, guidance on mobile development, and a full API reference.
 - https://docs.google.com/document/d/1wbiXe81x1OWSqB-mSCWLOvIGngZpB3J6JAlD8CO6zyQ/edit
 - https://github.com/seenickcode/fluttercrashcourse-lessons
 
-- Simulate slow loading time - app called child's proxy
+- Simulate slow loading time - app called Charles proxy
     
