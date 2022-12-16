@@ -44,3 +44,4 @@ samples, guidance on mobile development, and a full API reference.
 
 - Simulate slow loading time - app called Charles proxy
     
+-   Lesson 16 Custom Listviews has 2 new property added, as per video it's userItinerarySummary and tourPackageName. But as per api response from https://fluttercrashcourse.com/api/v1/locations field names are different, user_itinerary_summary and tour_package_name. So instead of userItinerarySummary and tourPackageName use user_itinerary_summary and tour_package_name

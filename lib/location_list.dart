@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:tourism_basic_app/location_detail.dart';
+import './components/location_tile.dart';
 import './models/location.dart';
+import './location_detail.dart';
 import './styles.dart';
+
+const ListItemHeight = 245.0;
 
 class LocationList extends StatefulWidget {
   const LocationList({super.key});
@@ -36,7 +39,7 @@ class _LocationListState extends State<LocationList> {
     return Scaffold(
         appBar: AppBar(title: Text('Locations', style: Styles.navBarTitle)),
         body: RefreshIndicator(
-            onRefresh: loadData,    //   <= This is of type Future<void>
+            onRefresh: loadData, //   <= This is of type Future<void>
             child: Column(children: [
               renderProgressBar(context),
               Expanded(child: renderListView(context)),
@@ -81,14 +84,27 @@ class _LocationListState extends State<LocationList> {
     // get location by index
     final location = locations[index];
 
-    return ListTile(
-      leading: _itemThumbnail(location),
-      title: _itemTitle(location),
-      contentPadding: EdgeInsets.all(10.0),
-      // onTap: () => _navigateToLocationDetail(context, location),
-      // we pass id, as have id in location objet
-      onTap: () => _navigateToLocationDetail(context, location.id),
-    );
+    // we used media query to get width of screen
+    return GestureDetector(
+        onTap: () => _navigateToLocationDetail(context, location.id),
+        child: Container(
+          height: ListItemHeight,
+          child: Stack(children: [
+            _tileImage(location.url, MediaQuery.of(context).size.width,
+                ListItemHeight),
+            _titleFooter(location),
+          ]),
+        ));
+
+    // commenting for new UI
+    // return ListTile(
+    //   leading: _itemThumbnail(location),
+    //   title: _itemTitle(location),
+    //   contentPadding: EdgeInsets.all(10.0),
+    //   // onTap: () => _navigateToLocationDetail(context, location),
+    //   // we pass id, as have id in location objet
+    //   onTap: () => _navigateToLocationDetail(context, location.id),
+    // );
   }
 
   // navigation method
@@ -102,25 +118,52 @@ class _LocationListState extends State<LocationList> {
         ));
   }
 
-  // Integration test, Load image using Image.network
-  Widget _itemThumbnail(Location location) {
+  Widget _tileImage(String url, double width, double height) {
     late Image image; // late keyword not needed when using locally
     try {
-      image = Image.network(location.url, fit: BoxFit.fitWidth);
+      image = Image.network(url, fit: BoxFit.cover);
     } catch (e) {
-      print('could not load image ${location.url}');
+      print('could not load image $url');
     }
 
     return Container(
-      constraints: BoxConstraints.tightFor(width: 100.0),
+      constraints: BoxConstraints.expand(),
       child: image,
     );
   }
 
+  Widget _titleFooter(Location location) {
+    final info = LocationTile(location: location, darkTheme: true);
+
+    final overlay = Container(
+      // height: 80.0, // static height, not needed as it gives pixel overlay
+      padding: EdgeInsets.symmetric(
+          vertical: 5.0, horizontal: Styles.horizontalPaddingDefault),
+      decoration: BoxDecoration(color: Colors.black.withOpacity(0.5)),
+      child: info,
+    );
+
+    // Column used to set Footer at bottom
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [overlay],
+    );
+  }
+
+  // Commenting for UI modification, alternate to it is _tileImage
+  // // Integration test, Load image using Image.network
   // Widget _itemThumbnail(Location location) {
+  //   late Image image; // late keyword not needed when using locally
+  //   try {
+  //     image = Image.network(location.url, fit: BoxFit.fitWidth);
+  //   } catch (e) {
+  //     print('could not load image ${location.url}');
+  //   }
+
   //   return Container(
   //     constraints: BoxConstraints.tightFor(width: 100.0),
-  //     child: Image.network(location.url, fit: BoxFit.fitWidth),
+  //     child: image,
   //   );
   // }
 

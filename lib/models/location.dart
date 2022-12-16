@@ -20,16 +20,16 @@ class Location {
   final int id;
   final String name; // final String? name;
   final String url;
-  final String userItinerarySummary;
-  final String tourPackageName;
+  final String user_itinerary_summary;
+  final String tour_package_name;
   final List<LocationFact>? facts;
 
   Location(
       {required this.id,
       required this.name,
       required this.url,
-      required this.userItinerarySummary,
-      required this.tourPackageName,
+      required this.user_itinerary_summary,
+      required this.tour_package_name,
       required this.facts});
 
   // CUSTOM named constructor, which instantiate everything with default values
@@ -41,8 +41,8 @@ class Location {
       : id = 0,
         name = '',
         url = '',
-        userItinerarySummary = '',
-        tourPackageName = '',
+        user_itinerary_summary = '',
+        tour_package_name = '',
         facts = [];
 
   // using special named constructor
@@ -61,7 +61,7 @@ class Location {
     if (resp.statusCode != 200) {
       throw (resp.body);
     }
-
+  
     List<Location> list = <Location>[];
 
     for (var jsonItem in jsonDecode(resp.body)) {
