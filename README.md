@@ -48,3 +48,7 @@ samples, guidance on mobile development, and a full API reference.
 
 - https://github.com/seenickcode/scoped_model_hello_world
 - https://docs.flutter.dev/cookbook  
+
+
+- To hide debug label on emulator
+-   set debugShowCheckedModeBanner: false, in MaterialApp
